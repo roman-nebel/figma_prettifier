@@ -1,0 +1,16 @@
+{
+  "name": "prettifier",
+  "version": "0.1.0",
+  "description": "Clean up your project structure",
+  "main": "code.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "watch": "npm run build -- --watch"
+  },
+  "author": "Roman Nebel",
+  "license": "MIT",
+  "devDependencies": {
+    "@figma/plugin-typings": "^1.84.0",
+    "typescript": "*"
+  }
+}
