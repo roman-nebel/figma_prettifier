@@ -8,13 +8,35 @@
     padding: 20px 16px;
     font-family: Inter, sans-serif;
     font-size: 16px;
-    line-height: 120%;
+    line-height: 150%;
   }
 
   h1 {
-    margin-bottom: 0.7rem;
+    margin-bottom: 1.2rem;
     font-size: 2.8rem;
     line-height: 110%;
+  }
+
+  h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 110%;
+  }
+
+  a {
+		text-decoration: underline dashed;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.2em;
+
+		color: rgb(1, 69, 241);
+  }
+
+  ul {
+    padding-left: 16px;
+
+    font-size: 0.8rem;
+    line-height: 1.2rem;
   }
 
   button {
@@ -38,19 +60,20 @@
 
   .counter_container {
     margin-bottom: 12px;
-    padding: 12px 16px;
+    padding: 16px 16px;
     border-radius: 12px;
 
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
 
     background-color: rgb(244, 244, 244);
   }
 
   .counter_value {
-    font-size: 1.4rem;
-    line-height: 2.2rem;
+    font-size: 1.2rem;
+    line-height: 1.8rem;
     font-weight: 600;
   }
 
@@ -65,6 +88,11 @@
     border-radius: 8px;
   }
 
+  .button_primary {
+    color: rgb(255, 255, 255);
+    background-color: rgb(1, 69, 241);
+  }
+
   .button_ghost {
     color: rgb(1, 69, 241);
   }
@@ -76,26 +104,95 @@
   .button_ghost:hover {
     background-color: rgba(1, 69, 241, 0.1);
   }
+
+  .button_ghost:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  .copyright_container {
+    padding-top: 8px;
+  }
+
+  .copyright {
+		font-size: 0.6rem;
+		text-align: center;
+
+		color: #726F6E
+	}
 </style>
 
 <h1>Prettifier</h1>
 <div class="counter_container">
-  <p class="counter_label">Frames named by default: <span class="counter_value" id="frames_counter_value"></span></p>
+  <ul>
+    <li>Plugin count items only in selected page</li>
+    <li>In a big file counting may takes some time (up to few minutes)</li>
+    <li>Plugin currently in beta. If you get troubled or need additional functions — contact me: <a href="mailto:r@nebel.im">r@nebel.im</a></li>
+  </ul>
 </div>
-<button class="button_ghost button_small button_full_width" id="update" title="Update">
-  <div>↻</div>
-  <div>Refresh</div>
+<div class="counter_container">
+  <h2>Named by default</h2>
+  <p class="counter_label">Frames: <span class="counter_value" id="frames_counter_value">–</span></p>
+  <p class="counter_label">Shapes: <span class="counter_value" id="shapes_counter_value">–</span></p>
+</div>
+<button class="button_primary button_small button_full_width" id="refresh" title="Refresh">
+  <div id="refresh_button_icon"></div>
+  <div id="refresh_button_label">Get data</div>
 </button>
+<div class="copyright_container">
+  <span class="copyright">version 0.2 [beta] | 2024 © <a href="https://nebel.im">Roman Nebel</a> from <a href="https://neverhund.com">Neverhund</a></span>
+</div>
 <script>
 
-document.getElementById('update').onclick = () => {
-  parent.postMessage({ pluginMessage: { action: 'UPDATE_FRAME_COUNTER' } }, '*')
-}
+  function buttonConstructor(buttonName) {
+    const button = document.getElementById(buttonName)
+    const icon = document.getElementById(`${buttonName}_button_icon`)
+    const label = document.getElementById(`${buttonName}_button_label`)
 
-onmessage = (event) => {
-  const message = event.data.pluginMessage
+    function enable(iconText, labelText) {
+      button.disabled = false
+      icon.innerText = iconText || "↻"
+      label.innerText = labelText || "Refresh"
+    }
 
-  document.getElementById('frames_counter_value').innerText = message.counter
-}
+    function disable(iconText, labelText) {
+        button.disabled = true
+        icon.innerText = iconText || "⧖"
+        label.innerText = labelText || "Refreshing..."
+    }
+
+    function changeClass(oldClass, newClass) {
+        button.classList.remove(oldClass)
+        button.classList.add(newClass)
+
+    }
+
+    return { enable, disable, changeClass }
+  }
+
+  const refreshButton = buttonConstructor("refresh")
+
+  function updateCounters(data) {
+    const { defaultFrames, defaultShapes } = data
+
+    document.getElementById('frames_counter_value').innerText = defaultFrames
+    document.getElementById('shapes_counter_value').innerText = defaultShapes
+  }
+
+  document.getElementById('refresh').onclick = () => {
+    refreshButton.changeClass("button_primary", "button_ghost")
+    refreshButton.disable("⧖", "Refreshing...")
+    setTimeout(() => { parent.postMessage({ pluginMessage: { action: 'UPDATE_COUNTERS' } }, '*') }, 140)
+    
+  }
+
+  onmessage = (event) => {
+    const { action, data } = event.data.pluginMessage
+
+    if (action === "SEND_COUNTERS") {
+      updateCounters(data)
+      refreshButton.enable("↻", "Refresh")
+    }
+  }
 
 </script>
