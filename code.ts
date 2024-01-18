@@ -1,4 +1,4 @@
-const UIOptions = { width: 300, height: 495 };
+const UIOptions = { width: 300, height: 505 };
 
 figma.showUI(__html__, UIOptions);
 
