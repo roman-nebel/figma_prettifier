@@ -8,7 +8,10 @@
   "editorType": [
     "figma"
   ],
-  "ui": "ui.html",
+  "ui": {
+    "index": "index.html",
+    "rename": "rename.html"
+  },
   "networkAccess": {
     "allowedDomains": [
       "none"

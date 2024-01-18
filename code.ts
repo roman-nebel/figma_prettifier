@@ -1,11 +1,22 @@
-const UIOptions = { width: 300, height: 645 };
+type PageTypes = {
+  page: "index" | "rename"
+}
 
-figma.showUI(__html__, UIOptions);
+const UIOptions = 
+  {
+    index: { width: 300, height: 645 },
+    rename: { width: 300, height: 200 }
+  };
 
+figma.showUI(__uiFiles__.index, UIOptions.index);
+
+let defaultFrames: FrameNode[] = []
 let emptyFrames: FrameNode[] = []
+let defaultShapes: (RectangleNode | LineNode | VectorNode | EllipseNode | PolygonNode | StarNode)[]
+let defaultInstances: InstanceNode[]
 
 type UIMessage = {
-  action: "SEND_COUNTERS"
+  action: "SEND_COUNTERS" | "SEND_NAME"
   data: Object
 }
 
@@ -15,14 +26,14 @@ function SendToUI(msg: UIMessage) {
 
 function getDefaultNamedLayers() {
   const frames = figma.currentPage.findAllWithCriteria({ types: ['FRAME'] })
-  const defaultFrames = frames.filter((frame) => frame.name.match(/Frame [0-9]+/))
+  defaultFrames = frames.filter((frame) => frame.name.match(/Frame [0-9]+/))
   emptyFrames = frames.filter((frame) => frame.children.length === 0)
 
   const shapes = figma.currentPage.findAllWithCriteria({ types: ['RECTANGLE', 'LINE', 'VECTOR', 'ELLIPSE', 'POLYGON', 'STAR'] })
-  const defaultShapes = shapes.filter((shape) => shape.name.match(/Rectangle\s[0-9]+|Line\s[0-9]+|Arrow\s[0-9]+|Ellipse\s[0-9]+|Polygon\s[0-9]+|Star\s[0-9]+/))
+  defaultShapes = shapes.filter((shape) => shape.name.match(/Rectangle\s[0-9]+|Line\s[0-9]+|Arrow\s[0-9]+|Ellipse\s[0-9]+|Polygon\s[0-9]+|Star\s[0-9]+/))
 
   const instances = figma.currentPage.findAllWithCriteria({ types: ['INSTANCE'] })
-  const defaultInstances = instances.filter((frame) => frame.name === frame?.mainComponent?.name)
+  defaultInstances = instances.filter((frame) => frame.name === frame?.mainComponent?.name)
 
   SendToUI({
     action: "SEND_COUNTERS",
@@ -35,19 +46,50 @@ function getDefaultNamedLayers() {
       totalInstances: instances.length,
       defaultInstances: defaultInstances.length
     }
-    
   })
 }
 
 figma.ui.onmessage = msg => {
-  if (msg.action === 'UPDATE_COUNTERS') {
+  const { action } = msg
+  if (action === 'UPDATE_COUNTERS') {
     getDefaultNamedLayers()
   }
-  if (msg.action === 'SELECT_ITEM') {
-    if (emptyFrames.length) {
-      const nextFrame = emptyFrames[0]
+
+  if (action === 'CHANGE_PAGE') {
+    const { page }: PageTypes = msg
+    figma.showUI(__uiFiles__[page], UIOptions[page]);
+  }
+
+  if (action === 'UPDATE_NAME') {
+    const node = figma.currentPage.findOne((node) => node.id === defaultFrames[0].id)
+    console.log(node)
+    if (node) node.name = msg.newName
+    console.log(node)
+    
+  }
+
+  if (action === 'SELECT_ITEM') {
+    const { newName, save } = msg
+
+    if (newName) {
+      const node = figma.currentPage.findOne((node) => node.id === defaultFrames[0].id)
+      if (node) node.name = msg.newName
+      defaultFrames.shift()
+    }
+
+    debugger
+
+    if (defaultFrames.length) {
+      const nextFrame = defaultFrames[0]
       figma.currentPage.selection = [nextFrame];
       figma.viewport.scrollAndZoomIntoView([nextFrame])
+      SendToUI({
+        action: "SEND_NAME",
+        data: {
+          name: nextFrame.name
+        }
+        
+      })
     }
   }
 };

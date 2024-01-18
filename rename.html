@@ -1,0 +1,212 @@
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    padding: 20px 16px;
+    padding-bottom: 0;
+    font-family: Inter, sans-serif;
+    font-size: 16px;
+    line-height: 150%;
+  }
+
+  h1 {
+    margin-bottom: 1.2rem;
+    font-size: 2.8rem;
+    line-height: 110%;
+  }
+
+  h2 {
+    margin-bottom: 0.5rem;
+    font-size: 1.4rem;
+    font-weight: 600;
+    line-height: 110%;
+  }
+
+  a {
+		text-decoration: underline dashed;
+		text-decoration-thickness: 1px;
+		text-underline-offset: 0.2em;
+
+		color: rgb(1, 69, 241);
+  }
+
+  ul {
+    padding-left: 16px;
+
+    font-size: 0.8rem;
+    line-height: 1.2rem;
+  }
+
+  button {
+    font-family: Inter, sans-serif;
+    font-size: 1rem;
+    font-weight: 400;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border: none;
+    border-radius: 0;
+
+    background-color: transparent;
+  }
+
+  button:hover {
+    cursor: pointer;
+  }
+
+  .counter_container {
+    margin-bottom: 12px;
+    padding: 16px 16px;
+    border-radius: 12px;
+
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+
+    background-color: rgb(244, 244, 244);
+  }
+
+  .counter_row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .counter_value {
+    font-size: 1.2rem;
+    line-height: 1.8rem;
+    font-weight: 600;
+  }
+
+  .button_large {
+    padding: 8px;
+
+    min-width: 64px;
+    height: 40px;
+
+    gap: 6px;
+
+    border-radius: 8px;
+  }
+
+  .button_medium {
+    padding: 6px;
+
+    min-width: 48px;
+    height: 32px;
+
+    gap: 4px;
+
+    border-radius: 6px;
+  }
+
+  .button_small {
+    padding: 4px;
+
+    min-width: 32px;
+    height: 24px;
+
+    gap: 4px;
+
+    border-radius: 6px;
+  }
+
+  .button_primary {
+    color: rgb(255, 255, 255);
+    background-color: rgb(1, 69, 241);
+  }
+
+  .button_ghost {
+    color: rgb(1, 69, 241);
+  }
+
+  .button_ghost:hover {
+    background-color: rgba(1, 69, 241, 0.1);
+  }
+
+  .button_ghost.button_dangerous {
+    color: rgb(232, 65, 19);
+  }
+
+  .button_ghost.button_dangerous:hover {
+    background-color: rgba(232, 65, 19, 0.1);
+  }
+
+  .button_full_width {
+    width: 100%;
+  }
+
+  .button_ghost:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    height: 40px;
+    padding: 8px 12px;
+
+    border: none;
+    border-radius: 8px;
+
+    background-color: #fff;
+  }
+
+  .copyright_container {
+    padding: 8px 0;
+    text-align: center;
+    
+  }
+
+  .copyright {
+		font-size: 0.6rem;
+		text-align: center;
+
+		color: #726F6E
+	}
+
+  .hidden {
+    display: none;
+  }
+</style>
+<button class="button_ghost button_small" onclick="goTo('index')" title="Back">← Back</button>
+<form>
+  <div class="counter_container">
+    <input class="input_large" id="item_name" type="text" value="">
+  </div>
+  <button type="submit" class="button_primary button_medium button_full_width" id="select_next" title="Save and select next">Save and select next</button>
+</form>
+<script>
+  function goTo(page) {
+    parent.postMessage({ pluginMessage: { action: 'CHANGE_PAGE', page } }, '*')
+  }
+
+  function selectNextItem(save) {
+
+    const newName = document.getElementById('item_name').value
+    parent.postMessage({ pluginMessage: { action: 'SELECT_ITEM', newName, save } }, '*')
+  }
+
+  document.getElementById('select_next').onclick = (e) => {
+    e.preventDefault()
+    selectNextItem(true)
+  }
+
+  selectNextItem()
+
+  onmessage = (event) => {
+    const { action, data } = event.data.pluginMessage
+
+    if (action === "SEND_NAME") {
+      document.getElementById('item_name').value = data.name
+    }
+  }
+</script>
