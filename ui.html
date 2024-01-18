@@ -72,13 +72,21 @@
     background-color: rgb(244, 244, 244);
   }
 
+  .counter_row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
   .counter_value {
     font-size: 1.2rem;
     line-height: 1.8rem;
     font-weight: 600;
   }
 
-  .button_small {
+  .button_medium {
     padding: 4px;
 
     min-width: 48px;
@@ -87,6 +95,17 @@
     gap: 4px;
 
     border-radius: 8px;
+  }
+
+  .button_small {
+    padding: 4px;
+
+    min-width: 32px;
+    height: 24px;
+
+    gap: 4px;
+
+    border-radius: 6px;
   }
 
   .button_primary {
@@ -123,6 +142,10 @@
 
 		color: #726F6E
 	}
+
+  .hidden {
+    display: none;
+  }
 </style>
 
 <h1>Prettifier</h1>
@@ -135,15 +158,23 @@
 </div>
 <div class="counter_container">
   <h2>Named by default</h2>
-  <p class="counter_label">Frames: <span class="counter_value" id="frames_counter_value">–</span></p>
-  <p class="counter_label">Shapes: <span class="counter_value" id="shapes_counter_value">–</span></p>
+  <p class="counter_label">Frames: <span class="counter_value" id="default_frames_counter">–</span></p>
+  <p class="counter_label">Shapes: <span class="counter_value" id="default_shapes_counter">–</span></p>
+  <p class="counter_label">Instances: <span class="counter_value" id="default_instances_counter">–</span></p>
 </div>
-<button class="button_primary button_small button_full_width" id="refresh" title="Refresh">
+<div class="counter_container">
+  <h2>Empty items</h2>
+  <div class="counter_row">
+    <p class="counter_label">Frames: <span class="counter_value" id="empty_frames_counter">–</span></p>
+    <button class="button_ghost button_small hidden" id="select_empty" title="Select next">Select next</button>
+  </div>
+</div>
+<button class="button_primary button_medium button_full_width" id="refresh" title="Refresh">
   <div id="refresh_button_icon"></div>
   <div id="refresh_button_label">Get data</div>
 </button>
 <div class="copyright_container">
-  <span class="copyright">version 0.2 [beta] | 2024 © <a href="https://nebel.im">Roman Nebel</a> from <a href="https://neverhund.com">Neverhund</a></span>
+  <span class="copyright">version 0.3 [beta] | 2024 © <a href="https://nebel.im">Roman Nebel</a> from <a href="https://neverhund.com">Neverhund</a></span>
 </div>
 <script>
 
@@ -176,10 +207,20 @@
   const refreshButton = buttonConstructor("refresh")
 
   function updateCounters(data) {
-    const { defaultFrames, defaultShapes } = data
+    const { defaultFrames, defaultShapes, defaultInstances, emptyFrames } = data
 
-    document.getElementById('frames_counter_value').innerText = defaultFrames
-    document.getElementById('shapes_counter_value').innerText = defaultShapes
+    document.getElementById('default_frames_counter').innerText = defaultFrames
+    document.getElementById('default_shapes_counter').innerText = defaultShapes
+    document.getElementById('default_instances_counter').innerText = defaultInstances
+    document.getElementById('empty_frames_counter').innerText = emptyFrames
+
+    if (emptyFrames) {
+      document.getElementById('select_empty').classList.remove("hidden")
+    }
+  }
+
+  document.getElementById('select_empty').onclick = () => {
+    parent.postMessage({ pluginMessage: { action: 'SELECT_ITEM', type: "empty" } }, '*')
   }
 
   document.getElementById('refresh').onclick = () => {
