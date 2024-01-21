@@ -230,20 +230,22 @@
 
   const refreshButton = buttonConstructor("refresh")
 
-  function updateCounters(data) {
+  function updateCounters(data, state) {
     const { defaultFrames, defaultShapes, defaultInstances, emptyFrames } = data
 
-    document.getElementById('default_frames_counter').innerText = defaultFrames
-    document.getElementById('default_shapes_counter').innerText = defaultShapes
-    document.getElementById('default_instances_counter').innerText = defaultInstances
-    document.getElementById('empty_frames_counter').innerText = emptyFrames
+    if (!state) {
+      document.getElementById('default_frames_counter').innerText = defaultFrames
+      document.getElementById('default_shapes_counter').innerText = defaultShapes
+      document.getElementById('default_instances_counter').innerText = defaultInstances
+      document.getElementById('empty_frames_counter').innerText = emptyFrames
 
-    if (defaultFrames || defaultShapes || defaultInstances) {
-      document.getElementById('fix_names').classList.remove("hidden")
-    }
+      if (defaultFrames || defaultShapes || defaultInstances) {
+        document.getElementById('fix_names').classList.remove("hidden")
+      }
 
-    if (emptyFrames) {
-      document.getElementById('delete_empty').classList.remove("hidden")
+      if (emptyFrames) {
+        document.getElementById('delete_empty').classList.remove("hidden")
+      }
     }
   }
 
@@ -255,12 +257,16 @@
   }
 
   onmessage = (event) => {
-    const { action, data } = event.data.pluginMessage
+    const { action, data, state } = event.data.pluginMessage
 
     if (action === "SEND_COUNTERS") {
-      updateCounters(data)
-      refreshButton.enable("↻", "Refresh")
+      updateCounters(data, state)
+      if (state) {
+        refreshButton.enable("↻", "Refresh")
+      }
     }
   }
+
+  parent.postMessage({ pluginMessage: { action: 'BACKGROUND_UPDATE_COUNTERS' } }, '*')
 
 </script>

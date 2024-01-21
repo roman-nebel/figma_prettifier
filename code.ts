@@ -10,14 +10,20 @@ const UIOptions =
 
 figma.showUI(__uiFiles__.index, UIOptions.index);
 
+let initState = true
+
+let frames: FrameNode[] = []
 let defaultFrames: FrameNode[] = []
 let emptyFrames: FrameNode[] = []
-let defaultShapes: (RectangleNode | LineNode | VectorNode | EllipseNode | PolygonNode | StarNode)[]
-let defaultInstances: InstanceNode[]
+let shapes: (RectangleNode | LineNode | VectorNode | EllipseNode | PolygonNode | StarNode)[] = []
+let defaultShapes: (RectangleNode | LineNode | VectorNode | EllipseNode | PolygonNode | StarNode)[] = []
+let instances: InstanceNode[] = []
+let defaultInstances: InstanceNode[] = []
 
 type UIMessage = {
   action: "SEND_COUNTERS" | "SEND_NAME"
   data: Object
+  state?: boolean
 }
 
 function SendToUI(msg: UIMessage) {
@@ -25,14 +31,14 @@ function SendToUI(msg: UIMessage) {
 }
 
 function getDefaultNamedLayers() {
-  const frames = figma.currentPage.findAllWithCriteria({ types: ['FRAME'] })
+  frames = figma.currentPage.findAllWithCriteria({ types: ['FRAME'] })
   defaultFrames = frames.filter((frame) => frame.name.match(/Frame [0-9]+/))
   emptyFrames = frames.filter((frame) => frame.children.length === 0)
 
-  const shapes = figma.currentPage.findAllWithCriteria({ types: ['RECTANGLE', 'LINE', 'VECTOR', 'ELLIPSE', 'POLYGON', 'STAR'] })
+  shapes = figma.currentPage.findAllWithCriteria({ types: ['RECTANGLE', 'LINE', 'VECTOR', 'ELLIPSE', 'POLYGON', 'STAR'] })
   defaultShapes = shapes.filter((shape) => shape.name.match(/Rectangle\s[0-9]+|Line\s[0-9]+|Arrow\s[0-9]+|Ellipse\s[0-9]+|Polygon\s[0-9]+|Star\s[0-9]+/))
 
-  const instances = figma.currentPage.findAllWithCriteria({ types: ['INSTANCE'] })
+  instances = figma.currentPage.findAllWithCriteria({ types: ['INSTANCE'] })
   defaultInstances = instances.filter((frame) => frame.name === frame?.mainComponent?.name)
 
   SendToUI({
@@ -53,6 +59,23 @@ figma.ui.onmessage = msg => {
   const { action } = msg
   if (action === 'UPDATE_COUNTERS') {
     getDefaultNamedLayers()
+  }
+
+  if (action === 'BACKGROUND_UPDATE_COUNTERS') {
+    SendToUI({
+      action: "SEND_COUNTERS",
+      data: {
+        totalFrames: frames.length,
+        defaultFrames: defaultFrames.length,
+        emptyFrames: emptyFrames.length,
+        totalShapes: shapes.length,
+        defaultShapes: defaultShapes.length,
+        totalInstances: instances.length,
+        defaultInstances: defaultInstances.length
+      },
+      state: initState
+    })
+    initState = false
   }
 
   if (action === 'CHANGE_PAGE') {
