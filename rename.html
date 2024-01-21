@@ -59,6 +59,13 @@
     cursor: pointer;
   }
 
+  .container {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
   .counter_container {
     margin-bottom: 12px;
     padding: 16px 16px;
@@ -161,9 +168,8 @@
   }
 
   .copyright_container {
-    padding: 8px 0;
+    padding-bottom: 8px;
     text-align: center;
-    
   }
 
   .copyright {
@@ -177,13 +183,17 @@
     display: none;
   }
 </style>
-<button class="button_ghost button_small" onclick="goTo('index')" title="Back">← Back</button>
-<form>
-  <div class="counter_container">
-    <input class="input_large" id="item_name" type="text" value="">
+<div class="container">
+  <div>
+    <button class="button_ghost button_small" onclick="goTo('index')" title="Back">← Back</button>
   </div>
-  <button type="submit" class="button_primary button_medium button_full_width" id="select_next" title="Save and select next">Save and select next</button>
-</form>
+  <form>
+    <div class="counter_container">
+      <input class="input_large" id="item_name" type="text" value="">
+    </div>
+    <button type="submit" class="button_primary button_medium button_full_width" id="select_next" title="Save and select next">Save and select next</button>
+  </form>
+</div>
 <script>
   function goTo(page) {
     parent.postMessage({ pluginMessage: { action: 'CHANGE_PAGE', page } }, '*')

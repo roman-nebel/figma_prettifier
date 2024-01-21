@@ -4,7 +4,7 @@ type PageTypes = {
 
 const UIOptions = 
   {
-    index: { width: 300, height: 645 },
+    index: { width: 300, height: 680 },
     rename: { width: 300, height: 200 }
   };
 
@@ -41,24 +41,29 @@ function getDefaultNamedLayers() {
   instances = figma.currentPage.findAllWithCriteria({ types: ['INSTANCE'] })
   defaultInstances = instances.filter((frame) => frame.name === frame?.mainComponent?.name)
 
-  SendToUI({
-    action: "SEND_COUNTERS",
-    data: {
-      totalFrames: frames.length,
-      defaultFrames: defaultFrames.length,
-      emptyFrames: emptyFrames.length,
-      totalShapes: shapes.length,
-      defaultShapes: defaultShapes.length,
-      totalInstances: instances.length,
-      defaultInstances: defaultInstances.length
-    }
-  })
+  return {
+    totalFrames: frames.length,
+    defaultFrames: defaultFrames.length,
+    emptyFrames: emptyFrames.length,
+    totalShapes: shapes.length,
+    defaultShapes: defaultShapes.length,
+    totalInstances: instances.length,
+    defaultInstances: defaultInstances.length
+  }
 }
 
 figma.ui.onmessage = msg => {
   const { action } = msg
   if (action === 'UPDATE_COUNTERS') {
-    getDefaultNamedLayers()
+    const data = getDefaultNamedLayers()
+
+    initState = false
+
+    SendToUI({
+      action: "SEND_COUNTERS",
+      data,
+      state: initState
+    })
   }
 
   if (action === 'BACKGROUND_UPDATE_COUNTERS') {
@@ -75,12 +80,30 @@ figma.ui.onmessage = msg => {
       },
       state: initState
     })
-    initState = false
   }
 
   if (action === 'CHANGE_PAGE') {
     const { page }: PageTypes = msg
     figma.showUI(__uiFiles__[page], UIOptions[page]);
+  }
+
+  if (action === 'DELETE_EMPTY') {
+    for (const frame of emptyFrames) {
+      frame.remove()
+      emptyFrames = []
+    }
+    SendToUI({
+      action: "SEND_COUNTERS",
+      data: {
+        totalFrames: frames.length,
+        defaultFrames: defaultFrames.length,
+        emptyFrames: emptyFrames.length,
+        totalShapes: shapes.length,
+        defaultShapes: defaultShapes.length,
+        totalInstances: instances.length,
+        defaultInstances: defaultInstances.length
+      }
+    })
   }
 
   if (action === 'UPDATE_NAME') {
@@ -92,7 +115,7 @@ figma.ui.onmessage = msg => {
   }
 
   if (action === 'SELECT_ITEM') {
-    const { newName, save } = msg
+    const { newName } = msg
 
     if (newName) {
       const node = figma.currentPage.findOne((node) => node.id === defaultFrames[0].id)

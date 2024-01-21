@@ -1,6 +1,6 @@
 {
   "name": "prettifier",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Clean up your project structure",
   "main": "code.js",
   "scripts": {
