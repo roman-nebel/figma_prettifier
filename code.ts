@@ -2,6 +2,8 @@ type PageTypes = {
   page: "index" | "rename"
 }
 
+type PrimitiveNodes = Array<'RECTANGLE' | 'LINE' | 'VECTOR' | 'ELLIPSE' | 'POLYGON' | 'STAR'>
+
 const UIOptions = 
   {
     index: { width: 300, height: 680 },
@@ -9,6 +11,8 @@ const UIOptions =
   };
 
 figma.showUI(__uiFiles__.index, UIOptions.index);
+
+const PRIMITIVES: PrimitiveNodes = ['RECTANGLE', 'LINE', 'VECTOR', 'ELLIPSE', 'POLYGON', 'STAR']
 
 let initState = true
 
@@ -30,12 +34,26 @@ function SendToUI(msg: UIMessage) {
   figma.ui.postMessage(msg)
 }
 
+function checkName(type: any, newName: string) {
+  if (type === "FRAME") {
+    const re = new RegExp("Frame [0-9]+")
+    return !re.test(newName)
+  } 
+  
+  if (PRIMITIVES.includes(type)) {
+    const re = new RegExp("Rectangle\s[0-9]+|Line\s[0-9]+|Arrow\s[0-9]+|Ellipse\s[0-9]+|Polygon\s[0-9]+|Star\s[0-9]+")
+    return !re.test(newName)
+  }
+
+  return true
+}
+
 function getDefaultNamedLayers() {
   frames = figma.currentPage.findAllWithCriteria({ types: ['FRAME'] })
   defaultFrames = frames.filter((frame) => frame.name.match(/Frame [0-9]+/))
   emptyFrames = frames.filter((frame) => frame.children.length === 0)
 
-  shapes = figma.currentPage.findAllWithCriteria({ types: ['RECTANGLE', 'LINE', 'VECTOR', 'ELLIPSE', 'POLYGON', 'STAR'] })
+  shapes = figma.currentPage.findAllWithCriteria({ types: PRIMITIVES })
   defaultShapes = shapes.filter((shape) => shape.name.match(/Rectangle\s[0-9]+|Line\s[0-9]+|Arrow\s[0-9]+|Ellipse\s[0-9]+|Polygon\s[0-9]+|Star\s[0-9]+/))
 
   instances = figma.currentPage.findAllWithCriteria({ types: ['INSTANCE'] })
@@ -106,24 +124,19 @@ figma.ui.onmessage = msg => {
     })
   }
 
-  if (action === 'UPDATE_NAME') {
-    const node = figma.currentPage.findOne((node) => node.id === defaultFrames[0].id)
-    console.log(node)
-    if (node) node.name = msg.newName
-    console.log(node)
-    
-  }
-
   if (action === 'SELECT_ITEM') {
     const { newName } = msg
 
     if (newName) {
       const node = figma.currentPage.findOne((node) => node.id === defaultFrames[0].id)
-      if (node) node.name = msg.newName
-      defaultFrames.shift()
+      if (node && checkName(node.type, newName)) {
+        node.name = msg.newName
+        defaultFrames.shift()
+      } else {
+        figma.notify("Node is still have a default name", { error: true, timeout: 3000 })
+        return
+      }
     }
-
-    debugger
 
     if (defaultFrames.length) {
       const nextFrame = defaultFrames[0]
@@ -137,5 +150,6 @@ figma.ui.onmessage = msg => {
         
       })
     }
+
   }
 };
