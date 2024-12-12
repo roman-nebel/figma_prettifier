@@ -25,11 +25,11 @@
   }
 
   a {
-		text-decoration: underline dashed;
-		text-decoration-thickness: 1px;
-		text-underline-offset: 0.2em;
+    text-decoration: underline dashed;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.2em;
 
-		color: rgb(1, 69, 241);
+    color: rgb(1, 69, 241);
   }
 
   ul {
@@ -164,15 +164,14 @@
   .copyright_container {
     padding: 8px 0;
     text-align: center;
-    
   }
 
   .copyright {
-		font-size: 0.6rem;
-		text-align: center;
+    font-size: 0.6rem;
+    text-align: center;
 
-		color: #726F6E
-	}
+    color: #726f6e;
+  }
 
   .hidden {
     display: none;
@@ -184,14 +183,19 @@
     <ul>
       <li>Plugin count items only on a selected page</li>
       <li>In a big file, counting may take some time (up to a few minutes)</li>
-      <li>The plugin is currently in beta. If you get troubled or need additional functions — contact me at <a href="mailto:r@nebel.im">r@nebel.im</a></li>
+      <li>
+        The plugin is currently in beta. If you get troubled or need additional
+        functions — contact me at <a href="mailto:r@nebel.im">r@nebel.im</a>
+      </li>
     </ul>
   </div>
   <div class="counter_container">
     <h2>Out of Convention</h2>
     <div class="counters">
       <select id="convention">
-        <option value="1" selected>camelCase (first letter is lowercase)</option>
+        <option value="1" selected>
+          camelCase (first letter is lowercase)
+        </option>
         <option value="2">CamelCase (first letter is uppercase)</option>
         <option value="3">Single underline _</option>
         <option value="4">Double underline __</option>
@@ -199,128 +203,183 @@
         <option value="6">Double hyphen --</option>
       </select>
       <div class="counter_row">
-        <p class="counter_label">Total: <span class="counter_value" id="bad_named_counter">–</span></p>
-        <button class="button_ghost button_small hidden" id="fix_naming" title="Fix naming"> 🛠️ Fix naming</button>
+        <p class="counter_label">
+          Total: <span class="counter_value" id="bad_named_counter">–</span>
+        </p>
+        <button
+          class="button_ghost button_small hidden"
+          id="fix_naming"
+          title="Fix naming"
+        >
+          🛠️ Fix naming
+        </button>
       </div>
     </div>
   </div>
   <div class="counter_container">
     <h2>Named by default</h2>
     <div class="counters">
-      <p class="counter_label">Frames: <span class="counter_value" id="default_frames_counter">–</span></p>
-      <p class="counter_label">Shapes: <span class="counter_value" id="default_shapes_counter">–</span></p>
-      <p class="counter_label">Instances: <span class="counter_value" id="default_instances_counter">–</span></p>
+      <p class="counter_label">
+        Frames: <span class="counter_value" id="default_frames_counter">–</span>
+      </p>
+      <p class="counter_label">
+        Shapes: <span class="counter_value" id="default_shapes_counter">–</span>
+      </p>
+      <p class="counter_label">
+        Instances:
+        <span class="counter_value" id="default_instances_counter">–</span>
+      </p>
     </div>
-    <button class="button_primary button_medium button_full_width hidden" id="rename" onclick="goTo('rename')" title="Rename"> ➤ Rename</button>
+    <button
+      class="button_primary button_medium button_full_width hidden"
+      id="rename"
+      onclick="goTo('rename')"
+      title="Rename"
+    >
+      ➤ Rename
+    </button>
   </div>
   <div class="counter_container">
     <h2>Empty items</h2>
     <div class="counter_row">
-      <p class="counter_label">Frames: <span class="counter_value" id="empty_frames_counter">–</span></p>
-      <button class="button_ghost button_dangerous button_small hidden" id="delete_empty" title="Delete empty"> 🗑️ Delete</button>
+      <p class="counter_label">
+        Frames: <span class="counter_value" id="empty_frames_counter">–</span>
+      </p>
+      <button
+        class="button_ghost button_dangerous button_small hidden"
+        id="delete_empty"
+        title="Delete empty"
+      >
+        🗑️ Delete
+      </button>
     </div>
   </div>
-  <button class="button_primary button_large button_full_width" id="refresh" title="Refresh">
+  <button
+    class="button_primary button_large button_full_width"
+    id="refresh"
+    title="Refresh"
+  >
     <div id="refresh_button_icon"></div>
     <div id="refresh_button_label">Get data</div>
   </button>
   <div class="copyright_container">
-    <span class="copyright">version 0.4 [beta] | 2024 © <a href="https://nebel.im">Roman Nebel</a> from <a href="https://neverhund.com">Neverhund</a></span>
+    <span class="copyright"
+      >version 0.4 [beta] | 2024 ©
+      <a href="https://nebel.im">Roman Nebel</a> from
+      <a href="https://eduhund.com">eduHund</a></span
+    >
   </div>
 </div>
 <script>
-
   function goTo(page) {
-    parent.postMessage({ pluginMessage: { action: 'CHANGE_PAGE', page } }, '*')
+    parent.postMessage({ pluginMessage: { action: "CHANGE_PAGE", page } }, "*");
   }
 
   function buttonConstructor(buttonName) {
-    const button = document.getElementById(buttonName)
-    const icon = document.getElementById(`${buttonName}_button_icon`)
-    const label = document.getElementById(`${buttonName}_button_label`)
+    const button = document.getElementById(buttonName);
+    const icon = document.getElementById(`${buttonName}_button_icon`);
+    const label = document.getElementById(`${buttonName}_button_label`);
 
     function enable(iconText, labelText) {
-      button.disabled = false
-      icon.innerText = iconText || "↻"
-      label.innerText = labelText || "Refresh"
+      button.disabled = false;
+      icon.innerText = iconText || "↻";
+      label.innerText = labelText || "Refresh";
     }
 
     function disable(iconText, labelText) {
-        button.disabled = true
-        icon.innerText = iconText || "⧖"
-        label.innerText = labelText || "Refreshing..."
+      button.disabled = true;
+      icon.innerText = iconText || "⧖";
+      label.innerText = labelText || "Refreshing...";
     }
 
     function changeClass(oldClass, newClass) {
-        button.classList.remove(oldClass)
-        button.classList.add(newClass)
-
+      button.classList.remove(oldClass);
+      button.classList.add(newClass);
     }
 
-    return { enable, disable, changeClass }
+    return { enable, disable, changeClass };
   }
 
-  const refreshButton = buttonConstructor("refresh")
+  const refreshButton = buttonConstructor("refresh");
 
   function updateCounters(data, state) {
-    const { defaultFrames, defaultShapes, defaultInstances, emptyFrames, badNamedNodes } = data
+    const {
+      defaultFrames,
+      defaultShapes,
+      defaultInstances,
+      emptyFrames,
+      badNamedNodes,
+    } = data;
 
-    console.log(badNamedNodes)
+    console.log(badNamedNodes);
 
     if (!state) {
-      document.getElementById('bad_named_counter').innerText = badNamedNodes
-      document.getElementById('default_frames_counter').innerText = defaultFrames
-      document.getElementById('default_shapes_counter').innerText = defaultShapes
-      document.getElementById('default_instances_counter').innerText = defaultInstances
-      document.getElementById('empty_frames_counter').innerText = emptyFrames
+      document.getElementById("bad_named_counter").innerText = badNamedNodes;
+      document.getElementById("default_frames_counter").innerText =
+        defaultFrames;
+      document.getElementById("default_shapes_counter").innerText =
+        defaultShapes;
+      document.getElementById("default_instances_counter").innerText =
+        defaultInstances;
+      document.getElementById("empty_frames_counter").innerText = emptyFrames;
 
       if (badNamedNodes) {
-        document.getElementById('fix_naming').classList.remove("hidden")
+        document.getElementById("fix_naming").classList.remove("hidden");
       } else {
-        document.getElementById('fix_naming').classList.add("hidden")
+        document.getElementById("fix_naming").classList.add("hidden");
       }
 
       if (defaultFrames || defaultShapes || defaultInstances) {
-        document.getElementById('rename').classList.remove("hidden")
+        document.getElementById("rename").classList.remove("hidden");
       } else {
-        document.getElementById('rename').classList.add("hidden")
+        document.getElementById("rename").classList.add("hidden");
       }
 
       if (emptyFrames) {
-        document.getElementById('delete_empty').classList.remove("hidden")
+        document.getElementById("delete_empty").classList.remove("hidden");
       } else {
-        document.getElementById('delete_empty').classList.add("hidden")
+        document.getElementById("delete_empty").classList.add("hidden");
       }
     }
   }
 
-  document.getElementById('refresh').onclick = () => {
-    refreshButton.changeClass("button_primary", "button_ghost")
-    refreshButton.disable("⧖", "Refreshing...")
-    const convention = document.getElementById('convention').value
-    setTimeout(() => { parent.postMessage({ pluginMessage: { action: 'UPDATE_COUNTERS', convention } }, '*') }, 140)
-  }
+  document.getElementById("refresh").onclick = () => {
+    refreshButton.changeClass("button_primary", "button_ghost");
+    refreshButton.disable("⧖", "Refreshing...");
+    const convention = document.getElementById("convention").value;
+    setTimeout(() => {
+      parent.postMessage(
+        { pluginMessage: { action: "UPDATE_COUNTERS", convention } },
+        "*"
+      );
+    }, 140);
+  };
 
-  document.getElementById('delete_empty').onclick = () => {
-    parent.postMessage({ pluginMessage: { action: 'DELETE_EMPTY' } }, '*')
-  }
+  document.getElementById("delete_empty").onclick = () => {
+    parent.postMessage({ pluginMessage: { action: "DELETE_EMPTY" } }, "*");
+  };
 
-  document.getElementById('fix_naming').onclick = () => {
-    const convention = document.getElementById('convention').value
-    parent.postMessage({ pluginMessage: { action: 'FIX_NAMING', convention } }, '*')
-  }
+  document.getElementById("fix_naming").onclick = () => {
+    const convention = document.getElementById("convention").value;
+    parent.postMessage(
+      { pluginMessage: { action: "FIX_NAMING", convention } },
+      "*"
+    );
+  };
 
   onmessage = (event) => {
-    const { action, data, state } = event.data.pluginMessage
+    const { action, data, state } = event.data.pluginMessage;
 
     if (action === "SEND_COUNTERS") {
-      updateCounters(data, state)
+      updateCounters(data, state);
       if (!state) {
-        refreshButton.enable("↻", "Refresh")
+        refreshButton.enable("↻", "Refresh");
       }
     }
-  }
+  };
 
-  parent.postMessage({ pluginMessage: { action: 'BACKGROUND_UPDATE_COUNTERS' } }, '*')
-
+  parent.postMessage(
+    { pluginMessage: { action: "BACKGROUND_UPDATE_COUNTERS" } },
+    "*"
+  );
 </script>
